@@ -7,19 +7,44 @@ import ShopPage from './pages/shop/shop.component';
 import SignInSignUpPage from './pages/sign-in-sign-up/sign-in-sign-up.component';
 import Header from './components/header/header.component';
 
+import { auth } from './firebase/firebase.utils';
 
-function App() {
-  return (
-    <div>
-      {/* whatever you put outside of switch, will stay there... */}
-      <Header />
-      <Switch>
-        <Route exact path='/' component={HomePage} />
-        <Route exact path='/shop' component={ShopPage} />
-        <Route exact path='/signin' component={SignInSignUpPage} />
-      </Switch>
-    </div>
-  );
+
+class App extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+      currentUser: null
+    }
+  }
+
+  // google firebase authentication --->
+  unsubscribeFromAuth = null
+  // listening to state changes
+  componentDidMount() {
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(user => {
+      this.setState({ currentUser: user });
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth();
+  }
+
+  render() {
+    return (
+      <div>
+        {/* whatever you put outside of switch, will stay there ...eg header,footer... */}
+        <Header currentUser={this.state.currentUser} />
+        <Switch>
+          <Route exact path='/' component={HomePage} />
+          <Route exact path='/shop' component={ShopPage} />
+          <Route exact path='/signin' component={SignInSignUpPage} />
+        </Switch>
+      </div>
+    );
+  }
 }
 
 export default App;
